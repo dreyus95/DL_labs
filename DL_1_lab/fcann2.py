@@ -47,7 +47,6 @@ def fcann2_train(X, Y_, param_niter=1e5, param_delta=0.07):
         ###### HIDDEN LAYER PASS ######
         input = np.dot(X, W1) + b1
         hidden = relu(input)
-
         output = np.dot(hidden, W2) + b2
 
         ##### SOFTMAX PART #####
@@ -56,11 +55,10 @@ def fcann2_train(X, Y_, param_niter=1e5, param_delta=0.07):
         probs = softmax(exp_scores, sumexp)
 
         ##### UPDATES WEIGHTS #####
-
-        output_error_signal = (probs - Y_) / probs.shape[0]
+        output_error_signal = (probs - Y_) / N
 
         error_signal_hidden = np.dot(output_error_signal, W2.T)
-        error_signal_hidden[hidden <= 0] = 0
+        error_signal_hidden[hidden <= 0] = 0  # reLU iz max(0, x), derivative is 0 if values are < 0
 
         dW2 = np.dot(hidden.T, output_error_signal)
         db2 = np.sum(output_error_signal, axis=0, keepdims=True)
