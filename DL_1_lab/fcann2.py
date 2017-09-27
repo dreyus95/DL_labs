@@ -27,7 +27,7 @@ def cross_entropy_softmax_loss_array(softmax_probs_array, y_onehot):
     return loss
 
 
-def fcann2_train(X, Y_, param_niter=1e5, param_delta=0.05):
+def fcann2_train(X, Y_, param_niter=1e5, param_delta=0.07):
     D = X.shape[1]
     C = Y_.shape[1]
     N = X.shape[0]
@@ -39,6 +39,8 @@ def fcann2_train(X, Y_, param_niter=1e5, param_delta=0.05):
     b2 = np.zeros(shape=[1, C])
 
     model = {}
+
+    prev_loss = 9999
 
     for i in range(int(param_niter)+1):
 
@@ -76,12 +78,15 @@ def fcann2_train(X, Y_, param_niter=1e5, param_delta=0.05):
         W2 += -param_delta * dW2
         b2 += -param_delta * db2
 
-        # Assign new parameters to the model
-        model = {'W1': W1, 'b1': b1, 'W2': W2, 'b2': b2}
+        loss = cross_entropy_softmax_loss_array(probs, Y_)
+
+        if prev_loss > loss:
+            # Assign new parameters to the model
+            model = {'W1': W1, 'b1': b1, 'W2': W2, 'b2': b2, 'best_iter': i}
+            prev_loss = loss
 
         # dijagnostički ispis
         if i % 1000 == 0 and i != 0:
-            loss = cross_entropy_softmax_loss_array(probs, Y_)
             print("iteration {}: loss {}".format(i, loss))
 
     return model
@@ -111,6 +116,8 @@ if __name__ == "__main__":
 
     # train the model
     model = fcann2_train(X, one_hot)
+
+    print ("Best weights at iteration:", model['best_iter'])
 
     Y = fcann2_classify(model, X)
 
