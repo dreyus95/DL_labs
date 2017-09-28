@@ -1,12 +1,14 @@
 import tensorflow as tf
 import numpy as np
+import matplotlib.pyplot as plt
+from matplotlib.colors import  ListedColormap
 
 import data
 
 NUM_EXAMPLES = 50
-CLASSES = 2
+CLASSES = 3
 DISTRIBUTIONS = 6
-SEED = 103
+SEED = 1555
 
 
 class TFDeep:
@@ -28,8 +30,8 @@ class TFDeep:
 
         # example: 2 5 3
         for index, shape in enumerate(shapes[1:]):
-            self.weights.append(tf.Variable(initial_value=tf.zeros([shapes[index], shape])))
-            self.biases.append(tf.Variable(initial_value=tf.zeros([1, shape])))
+            self.weights.append(tf.Variable(initial_value=tf.random_normal([shapes[index], shape])))
+            self.biases.append(tf.Variable(initial_value=tf.random_normal([1, shape])))
 
         # NN input
         self.hs.append(self.relu(tf.matmul(self.X, self.weights[0]) + self.biases[0]))
@@ -130,13 +132,17 @@ if __name__ == "__main__":
     # instanciraj podatke X i labele Yoh_
     X, Y_ = data.sample_gmm_2d(DISTRIBUTIONS, CLASSES, NUM_EXAMPLES)
 
+    # use this for special case
+    colors = ['red', 'green', 'blue']
+    plt.scatter(X[:, 0], X[:, 1], c=Y_.flatten(), cmap=ListedColormap(colors))
+
     Yoh_ = Y_.reshape(-1)
     Yoh_ = np.eye(CLASSES)[Yoh_]
 
-    shape = [2, CLASSES]
+    shape = [2, 5, CLASSES]
 
     # izgradi graf:
-    tfdeep = TFDeep(shape, param_delta=0.05, param_lambda=0.01)
+    tfdeep = TFDeep(shape, param_delta=0.01, param_lambda=0.01)
 
     # nauči parametre:
     tfdeep.train(X, Yoh_, 10000)

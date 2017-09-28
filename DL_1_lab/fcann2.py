@@ -33,10 +33,10 @@ def fcann2_train(X, Y_, param_niter=1e5, param_delta=0.07):
     N = X.shape[0]
 
     W1 = np.random.randn(D, HIDDEN_LAYER_DIM)
-    b1 = np.zeros(shape=[1, HIDDEN_LAYER_DIM])
+    b1 = np.random.randn(1, HIDDEN_LAYER_DIM)
 
     W2 = np.random.randn(HIDDEN_LAYER_DIM, C)
-    b2 = np.zeros(shape=[1, C])
+    b2 = np.random.randn(1, C)
 
     model = {}
 

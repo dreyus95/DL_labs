@@ -3,9 +3,9 @@ import numpy as np
 
 import data
 
-SEED = 103
+SEED = 100
 NUM_EXAMPLES = 50
-CLASSES = 2
+CLASSES = 3
 DISTRIBUTIONS = 6
 
 
