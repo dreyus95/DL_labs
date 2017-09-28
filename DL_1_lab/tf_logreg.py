@@ -10,7 +10,7 @@ DISTRIBUTIONS = 6
 
 class TFLogreg:
 
-    def __init__(self, D, C, param_delta=0.1):
+    def __init__(self, D, C, param_delta=0.1, param_lambda=0.01):
         """Arguments:
            - D: dimensions of each datapoint
            - C: number of classes
@@ -29,7 +29,9 @@ class TFLogreg:
 
         # formulacija gubitka: self.loss
         #   koristiti: tf.log, tf.reduce_sum, tf.reduce_mean
-        self.loss = tf.reduce_mean(-tf.reduce_sum(self.Yoh_ * tf.log(self.probs), reduction_indices=[1]))
+        self.cross_entropy = tf.reduce_mean(-tf.reduce_sum(self.Yoh_ * tf.log(self.probs), reduction_indices=[1]))
+        self.regularization = param_lambda * tf.nn.l2_loss(self.W)
+        self.loss = self.cross_entropy + self.regularization
 
         # formulacija operacije učenja: self.train_step
         #   koristiti: tf.train.GradientDescentOptimizer,
@@ -53,8 +55,10 @@ class TFLogreg:
 
         # optimizacijska petlja
         #   koristiti: tf.Session.run
-        for _ in range(param_niter):
-            self.session.run(self.train_step, feed_dict={self.X: X, self.Yoh_: Yoh_})
+        for i in range(param_niter+1):
+            tr, loss = self.session.run([self.train_step, self.loss], feed_dict={self.X: X, self.Yoh_: Yoh_})
+            if i % 1000 == 0:
+                print("{0:4}. Loss: {1:.8f}".format(i, loss))
 
     def eval(self, X):
         """Arguments:
@@ -104,7 +108,7 @@ if __name__ == "__main__":
     Yoh_ = np.eye(CLASSES)[Yoh_]
 
     # izgradi graf:
-    tflr = TFLogreg(X.shape[1], Yoh_.shape[1], 0.15)
+    tflr = TFLogreg(X.shape[1], Yoh_.shape[1], param_delta=0.15, param_lambda=0.01)
 
     # nauči parametre:
     tflr.train(X, Yoh_, 10000)
@@ -114,7 +118,6 @@ if __name__ == "__main__":
 
     tflr.eval_perf(probs, Yoh_)
 
-    # iscrtaj rezultate, decizijsku plohu
     data.plot_decision_boundary(X, lambda x: tflr.classify(x))
     # graph the data points
     data.graph_data(X, Y_, np.argmax(probs, axis=1))
