@@ -2,9 +2,9 @@ import numpy as np
 import data
 
 HIDDEN_LAYER_DIM = 5
-SEED = 100
+SEED = 103
 NUM_EXAMPLES = 10
-CLASSES = 2
+CLASSES = 3
 DISTRIBUTIONS = 6
 REG_LAMBDA = 1e-3
 

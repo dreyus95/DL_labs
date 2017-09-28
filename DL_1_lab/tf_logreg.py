@@ -3,6 +3,7 @@ import numpy as np
 
 import data
 
+SEED = 103
 NUM_EXAMPLES = 50
 CLASSES = 2
 DISTRIBUTIONS = 6
@@ -68,7 +69,6 @@ class TFLogreg:
         #   koristiti: tf.Session.run
         # ispiši performansu (preciznost i odziv po razredima)
         probs = self.session.run(self.probs, feed_dict={self.X: X})
-
         return probs
 
     def classify(self, X):
@@ -98,8 +98,8 @@ class TFLogreg:
 
 if __name__ == "__main__":
     # inicijaliziraj generatore slučajnih brojeva
-    np.random.seed(103)
-    tf.set_random_seed(103)
+    np.random.seed(SEED)
+    tf.set_random_seed(SEED)
 
     # instanciraj podatke X i labele Yoh_
     X, Y_ = data.sample_gmm_2d(DISTRIBUTIONS, CLASSES, NUM_EXAMPLES)
