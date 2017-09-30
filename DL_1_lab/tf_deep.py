@@ -5,10 +5,10 @@ from matplotlib.colors import  ListedColormap
 
 import data
 
-NUM_EXAMPLES = 50
-CLASSES = 3
+NUM_EXAMPLES = 10
+CLASSES = 2
 DISTRIBUTIONS = 6
-SEED = 1555
+SEED = 106
 
 
 class TFDeep:
@@ -34,11 +34,13 @@ class TFDeep:
             self.biases.append(tf.Variable(initial_value=tf.random_normal([1, shape])))
 
         # NN input
+        # self.hs.append(tf.nn.sigmoid(tf.matmul(self.X, self.weights[0]) + self.biases[0]))
         self.hs.append(self.relu(tf.matmul(self.X, self.weights[0]) + self.biases[0]))
 
         # NN inner connections
         for i in range(1, len(shapes[1:-1])):
             self.hs.append(self.relu(tf.matmul(self.hs[-1], self.weights[i]) + self.biases[i]))
+            # self.hs.append(tf.nn.sigmoid(tf.matmul(self.hs[-1], self.weights[i]) + self.biases[i]))
 
         # NN output
         if len(shapes[1:-1]) == 0:
@@ -140,10 +142,10 @@ if __name__ == "__main__":
     Yoh_ = Y_.reshape(-1)
     Yoh_ = np.eye(CLASSES)[Yoh_]
 
-    shape = [2, 5, CLASSES]
+    shape = [2, 10, CLASSES]
 
     # izgradi graf:
-    tfdeep = TFDeep(shape, param_delta=0.01, param_lambda=0.01)
+    tfdeep = TFDeep(shape, param_delta=0.001, param_lambda=0.01)
 
     # nauči parametre:
     tfdeep.train(X, Yoh_, 10000)
