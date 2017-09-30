@@ -31,26 +31,43 @@ def plot_decision_boundary(X, pred_func, offset=0.5):
     return
 
 
-def graph_data(X, Y_, Y):
+def graph_data(X, Y_, Y, special=[]):
     markers = ['s', 'o']
 
-    correct_preds_indices = [i for i, (a, b) in enumerate(zip(Y_, Y)) if a == b]
-    wrong_preds_indices = [i for i, (a, b) in enumerate(zip(Y_, Y)) if a != b]
+    correct_preds_indices = [i for i, (a, b) in enumerate(zip(Y_, Y)) if a == b and i not in special]
+    wrong_preds_indices = [i for i, (a, b) in enumerate(zip(Y_, Y)) if a != b and i not in special]
+
+    correct_preds_special_indices = [i for i, (a, b) in enumerate(zip(Y_, Y)) if a == b and i in special]
+    wrong_preds_special_indices = [i for i, (a, b) in enumerate(zip(Y_, Y)) if a != b and i in special]
 
     classes = max(int(max(Y_) + 1), int(max(Y) + 1))
 
     correct_all_indices = []
     wrong_all_indices = []
+    correct_all_special_indices = []
+    wrong_all_special_indices = []
 
     for cls in range(classes):
         correct_all_indices.append([a for a in correct_preds_indices if Y_[a] == cls])
         wrong_all_indices.append([a for a in wrong_preds_indices if Y_[a] != cls])
+        correct_all_special_indices.append([a for a in correct_preds_special_indices if Y_[a] == cls])
+        wrong_all_special_indices.append([a for a in wrong_preds_special_indices if Y_[a] != cls])
+
+    colors = ['red']
+    if classes == 2:
+        colors = ['red', 'green']
+    elif classes == 3:
+        colors = ['red', 'green', 'blue']
 
     for cls in range(classes):
         plt.scatter(X[correct_all_indices[cls]][:, 0], X[correct_all_indices[cls]][:, 1], edgecolor='black',
-                    marker=markers[1], label="correct {0}".format(cls))
+                    marker=markers[1], c=colors[cls], label="correct {0}".format(cls))
         plt.scatter(X[wrong_all_indices[cls]][:, 0], X[wrong_all_indices[cls]][:, 1], edgecolor='black',
-                    marker=markers[0], label="wrong {0}".format(cls))
+                    marker=markers[0], c=colors[cls], label="wrong {0}".format(cls))
+        plt.scatter(X[correct_all_special_indices[cls]][:, 0], X[correct_all_special_indices[cls]][:, 1],
+                    edgecolor='black', c=colors[cls], marker=markers[1], s=60)
+        plt.scatter(X[wrong_all_special_indices[cls]][:, 0], X[wrong_all_special_indices[cls]][:, 1], edgecolor='black',
+                    marker=markers[0], s=60, c=colors[cls])
 
     plt.legend(loc="upper left")
 

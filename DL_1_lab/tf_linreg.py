@@ -1,6 +1,4 @@
 import tensorflow as tf
-import numpy as np
-import matplotlib.pyplot as plt
 
 ## 1. definicija računskog grafa
 # podatci i parametri
