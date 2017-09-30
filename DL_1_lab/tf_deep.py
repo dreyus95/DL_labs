@@ -81,8 +81,9 @@ class TFDeep:
         # optimizacijska petlja
         #   koristiti: tf.Session.run
         for i in range(param_niter+1):
-            tr, loss = self.session.run([self.train_step, self.loss], feed_dict={self.X: X, self.Yoh_: Yoh_})
+            tr = self.session.run([self.train_step], feed_dict={self.X: X, self.Yoh_: Yoh_})
             if i % 1000 == 0:
+                loss = self.session.run(self.loss, feed_dict={self.X: X, self.Yoh_: Yoh_})
                 print("{0:4}. Loss: {1:.8f}".format(i, loss))
 
     def eval(self, X):
@@ -132,9 +133,9 @@ if __name__ == "__main__":
     # instanciraj podatke X i labele Yoh_
     X, Y_ = data.sample_gmm_2d(DISTRIBUTIONS, CLASSES, NUM_EXAMPLES)
 
-    # use this for special case
-    colors = ['red', 'green', 'blue']
-    plt.scatter(X[:, 0], X[:, 1], c=Y_.flatten(), cmap=ListedColormap(colors))
+    # use this for debugging
+    # colors = ['red', 'green', 'blue']
+    # plt.scatter(X[:, 0], X[:, 1], c=Y_.flatten(), cmap=ListedColormap(colors))
 
     Yoh_ = Y_.reshape(-1)
     Yoh_ = np.eye(CLASSES)[Yoh_]
