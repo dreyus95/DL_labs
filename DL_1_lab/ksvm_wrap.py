@@ -12,7 +12,9 @@ SEED = 106
 
 
 class KSVMWrap(object):
-
+    """
+        Wrapper class for SVM.
+    """
     def __init__(self, X, Y_, param_svm_c=1.0, kernel='rbf', param_svm_gamma='auto'):
         self.svm = SVM(C=param_svm_c, kernel=kernel, gamma=param_svm_gamma)
         self.svm.fit(X, Y_)

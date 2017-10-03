@@ -1,8 +1,11 @@
 import numpy as np
+from matplotlib.colors import ListedColormap
+import matplotlib.pyplot as plt
+
 import data
 
 HIDDEN_LAYER_DIM = 5
-SEED = 103
+SEED = 118
 NUM_EXAMPLES = 10
 CLASSES = 3
 DISTRIBUTIONS = 6
@@ -20,7 +23,13 @@ def softmax(z, sum):
 
 
 def cross_entropy_softmax_loss_array(softmax_probs_array, y_onehot):
-    indices = np.argmax(y_onehot, axis = 1).astype(int)
+    """
+        Calculates cross entropy loss for computed softmax probability score array
+    :param softmax_probs_array: computed softmax probability score array
+    :param y_onehot: One_hoted indices of true classes
+    :return: loss
+    """
+    indices = np.argmax(y_onehot, axis=1).astype(int)
     predicted_probability = softmax_probs_array[np.arange(len(softmax_probs_array)), indices]
     log_preds = np.log(predicted_probability)
     loss = -1.0 * np.sum(log_preds) / len(log_preds)
@@ -28,6 +37,14 @@ def cross_entropy_softmax_loss_array(softmax_probs_array, y_onehot):
 
 
 def fcann2_train(X, Y_, param_niter=1e5, param_delta=0.07):
+    """
+        Method that performs training part of a Fully Connected Artificial Neural Network
+    :param X: dataset
+    :param Y_: true classes
+    :param param_niter: number of iterations
+    :param param_delta: strength of update on each iteration
+    :return:
+    """
     D = X.shape[1]
     C = Y_.shape[1]
     N = X.shape[0]
@@ -91,6 +108,12 @@ def fcann2_train(X, Y_, param_niter=1e5, param_delta=0.07):
 
 
 def fcann2_classify(model, X):
+    """
+        Method that performs classification based on trained NN model.
+    :param model: Trained NN model given from fcann2_train method
+    :param X: dataset
+    :return: classifications for each sample in X
+    """
     W1, b1, W2, b2 = model['W1'], model['b1'], model['W2'], model['b2']
     # Forward propagation
     z1 = X.dot(W1) + b1
@@ -107,10 +130,12 @@ if __name__ == "__main__":
     # get the training dataset
     X, Y_ = data.sample_gmm_2d(DISTRIBUTIONS, CLASSES, NUM_EXAMPLES)
 
-    classes = int(max(Y_) + 1)
+    # use this for debugging
+    colors = ['red', 'green', 'blue']
+    plt.scatter(X[:, 0], X[:, 1], c=Y_.flatten(), cmap=ListedColormap(colors))
 
     one_hot = Y_.reshape(-1)
-    one_hot = np.eye(classes)[one_hot]
+    one_hot = np.eye(CLASSES)[one_hot]
 
     # train the model
     model = fcann2_train(X, one_hot)

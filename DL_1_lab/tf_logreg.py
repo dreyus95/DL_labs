@@ -1,5 +1,7 @@
 import tensorflow as tf
 import numpy as np
+from matplotlib.colors import ListedColormap
+import matplotlib.pyplot as plt
 
 import data
 
@@ -11,18 +13,23 @@ DISTRIBUTIONS = 6
 
 class TFLogreg:
 
+    """
+        Class that represents a tensorflow implementation of Logistic Regression model.
+    """
+
     def __init__(self, D, C, param_delta=0.1, param_lambda=0.01):
         """Arguments:
            - D: dimensions of each datapoint
            - C: number of classes
            - param_delta: training step
+           - param_lambda= regularization strength
         """
         # definicija podataka i parametara:
         # definirati self.X, self.Yoh_, self.W, self.b
         self.X = tf.placeholder(dtype=tf.float32, shape=[None, D])
         self.Yoh_ = tf.placeholder(dtype=tf.float32, shape=[None, C])
-        self.W = tf.Variable(initial_value=tf.zeros([D, C]))
-        self.b = tf.Variable(initial_value=tf.zeros([1, C]))
+        self.W = tf.Variable(initial_value=tf.random_normal([D, C]))
+        self.b = tf.Variable(initial_value=tf.random_normal([1, C]))
 
         # formulacija modela: izračunati self.probs
         #   koristiti: tf.matmul, tf.nn.softmax
@@ -107,8 +114,12 @@ if __name__ == "__main__":
     Yoh_ = Y_.reshape(-1)
     Yoh_ = np.eye(CLASSES)[Yoh_]
 
+    # use this for debugging
+    colors = ['red', 'green', 'blue']
+    plt.scatter(X[:, 0], X[:, 1], c=Y_.flatten(), cmap=ListedColormap(colors))
+
     # izgradi graf:
-    tflr = TFLogreg(X.shape[1], Yoh_.shape[1], param_delta=0.15, param_lambda=0.01)
+    tflr = TFLogreg(X.shape[1], Yoh_.shape[1], param_delta=0.01, param_lambda=0.01)
 
     # nauči parametre:
     tflr.train(X, Yoh_, 10000)

@@ -40,6 +40,7 @@ def graph_data(X, Y_, Y, special=[]):
     correct_preds_special_indices = [i for i, (a, b) in enumerate(zip(Y_, Y)) if a == b and i in special]
     wrong_preds_special_indices = [i for i, (a, b) in enumerate(zip(Y_, Y)) if a != b and i in special]
 
+    # this is used due to various seeds, some might not always give full range of classes on sampling
     classes = max(int(max(Y_) + 1), int(max(Y) + 1))
 
     correct_all_indices = []
@@ -53,6 +54,7 @@ def graph_data(X, Y_, Y, special=[]):
         correct_all_special_indices.append([a for a in correct_preds_special_indices if Y_[a] == cls])
         wrong_all_special_indices.append([a for a in wrong_preds_special_indices if Y_[a] != cls])
 
+    # currently working with 1, 2, 3 classes, will need some refactor if that changes
     colors = ['red']
     if classes == 2:
         colors = ['red', 'green']
@@ -64,6 +66,7 @@ def graph_data(X, Y_, Y, special=[]):
                     marker=markers[1], c=colors[cls], label="correct {0}".format(cls))
         plt.scatter(X[wrong_all_indices[cls]][:, 0], X[wrong_all_indices[cls]][:, 1], edgecolor='black',
                     marker=markers[0], c=colors[cls], label="wrong {0}".format(cls))
+        # special indices
         plt.scatter(X[correct_all_special_indices[cls]][:, 0], X[correct_all_special_indices[cls]][:, 1],
                     edgecolor='black', c=colors[cls], marker=markers[1], s=60)
         plt.scatter(X[wrong_all_special_indices[cls]][:, 0], X[wrong_all_special_indices[cls]][:, 1], edgecolor='black',
@@ -76,6 +79,13 @@ def graph_data(X, Y_, Y, special=[]):
 
 
 def sample_gmm_2d(K, C, N):
+    """
+        Method that does K*N GMM sampling with C classes
+    :param K: number of distributions
+    :param C: number of classes
+    :param N: number of samples
+    :return:
+    """
     distributions = [Random2DGaussian() for _ in range(K)]
     datasets = [distribution.get_sample(N) for distribution in distributions]
 
@@ -89,6 +99,10 @@ def sample_gmm_2d(K, C, N):
 
 
 class Random2DGaussian(object):
+    """
+        Class that represents a 2D gaussian data model.
+        With get_sample(n) method one can get n random gaussian samples.
+    """
     def __init__(self):
         self.min_x = 0
         self.min_y = 0
@@ -127,4 +141,3 @@ if __name__ == "__main__":
 
     # graph the data points
     graph_data(X, Y_, Y)
-    plt.plot()

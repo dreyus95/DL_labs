@@ -56,7 +56,7 @@ class TFDeep:
 
         # formulacija gubitka: self.loss
         #   koristiti: tf.log, tf.reduce_sum, tf.reduce_mean
-        self.cross_entropy = tf.reduce_mean(-tf.reduce_sum(self.Yoh_ * tf.log(self.probs), reduction_indices=[1]))
+        self.cross_entropy = tf.reduce_mean(-tf.reduce_sum(self.Yoh_ * tf.log(self.probs), axis=1))
         self.regularization = [param_lambda * tf.nn.l2_loss(weights) for weights in self.weights]
         self.loss = self.cross_entropy + tf.add_n(self.regularization)
 
@@ -145,7 +145,7 @@ if __name__ == "__main__":
     shape = [2, 10, CLASSES]
 
     # izgradi graf:
-    tfdeep = TFDeep(shape, param_delta=0.001, param_lambda=0.01)
+    tfdeep = TFDeep(shape, param_delta=0.01, param_lambda=0.01)
 
     # nauči parametre:
     tfdeep.train(X, Yoh_, 10000)
