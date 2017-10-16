@@ -2,6 +2,7 @@ import tensorflow as tf
 import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.colors import  ListedColormap
+from sklearn.metrics import f1_score, precision_score, recall_score, accuracy_score
 
 import data
 
@@ -12,6 +13,9 @@ SEED = 106
 
 
 class TFDeep:
+    """
+        Class that represents a deep neural network implementation in tensorflow.
+    """
 
     def __init__(self, shapes, param_delta=0.1, param_lambda=0.01):
         """Arguments:
@@ -106,25 +110,22 @@ class TFDeep:
         return output
 
     def eval_perf(self, Y, Y_):
-        predicted = tf.argmax(Y, axis=1)
-        correct = tf.argmax(Y_, axis=1)
+        # needed to compute scores of our model
+        # 'weighted' takes into consideration labels imbalance
+        if max(int(max(Y_) + 1), int(max(Y) + 1)) == 2:
+            average = 'binary'
+        else:
+            average = 'weighted'
 
-        TP = tf.count_nonzero(predicted * correct, dtype=tf.float32)
-        TN = tf.count_nonzero((predicted - 1) * (correct - 1), dtype=tf.float32)
-        FP = tf.count_nonzero(predicted * (correct - 1), dtype=tf.float32)
-        FN = tf.count_nonzero((predicted - 1) * correct, dtype=tf.float32)
+        accuracy = accuracy_score(Y_, Y)
+        precision = precision_score(Y_, Y, average=average)
+        recall = recall_score(Y_, Y, average=average)
+        f1 = f1_score(Y_, Y, average=average)
 
-        accuracy = (TP + TN) / (TP + TN + FP + FN)
-        precision = TP / (TP + FP)
-        recall = TP / (TP + FN)
-        f1 = 2 * precision * recall / (precision + recall)
-
-        acc, prec, rec, f_1 = self.session.run([accuracy, precision, recall, f1], feed_dict={self.X: X})
-
-        print("Accuracy: {0:.3f}\n"\
-              "Precision: {1:.3f}\n"\
-              "Recall: {2:.3f}\n"\
-              "F1: {3:.3f} ".format(acc, prec, rec, f_1))
+        print("Accuracy: {0:.3f}\n"
+              "Precision: {1:.3f}\n"
+              "Recall: {2:.3f}\n"
+              "F1: {3:.3f} ".format(accuracy, precision, recall, f1))
 
 
 if __name__ == "__main__":

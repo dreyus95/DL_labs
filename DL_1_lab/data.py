@@ -97,6 +97,37 @@ def sample_gmm_2d(K, C, N):
     X = np.concatenate(datasets)
     return np.array(X), np.reshape(np.array(Y), [K*N, -1])
 
+def eval_AP(ranked_labels):
+    """Recovers AP from ranked labels"""
+
+    n = len(ranked_labels)
+    pos = sum(ranked_labels)
+    neg = n - pos
+
+    tp = sum(ranked_labels)
+    tn = 0
+    fn = 0
+    fp = neg
+
+    sumprec = 0
+    # IPython.embed()
+    for x in ranked_labels:
+        precision = tp / (tp + fp)
+        recall = tp / (tp + fn)
+
+        if x:
+            sumprec += precision
+
+        # print (x, tp,tn,fp,fn, precision, recall, sumprec)
+        # IPython.embed()
+
+        tp -= x
+        fn += x
+        fp -= not x
+        tn += not x
+
+    return sumprec / pos
+
 
 class Random2DGaussian(object):
     """

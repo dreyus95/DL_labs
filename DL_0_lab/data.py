@@ -104,21 +104,36 @@ def eval_perf_binary(Y, Y_):
     return accuracy, recall, precision
 
 
-def eval_AP(Y):
-    num_predictions = len(Y)
-    total_sum = 0.0
-    further = [1]
-    for i in range(num_predictions):
-        if Y[i] == 0:
-            continue
-        past = Y[0:i]
-        further = Y[i:len(Y)]
-        past_ones = len([1 for x in past if x == 1])
-        further_zeroes = len([0 for x in further if x == 0])
-        precision_i = (num_predictions - past_ones - further_zeroes) / num_predictions
-        total_sum += precision_i * Y[i]
+def eval_AP(ranked_labels):
+    """Recovers AP from ranked labels"""
 
-    return float(total_sum / np.sum(Y))
+    n = len(ranked_labels)
+    pos = sum(ranked_labels)
+    neg = n - pos
+
+    tp = sum(ranked_labels)
+    tn = 0
+    fn = 0
+    fp = neg
+
+    sumprec = 0
+    # IPython.embed()
+    for x in ranked_labels:
+        precision = tp / (tp + fp)
+        recall = tp / (tp + fn)
+
+        if x:
+            sumprec += precision
+
+        # print (x, tp,tn,fp,fn, precision, recall, sumprec)
+        # IPython.embed()
+
+        tp -= x
+        fn += x
+        fp -= not x
+        tn += not x
+
+    return sumprec / pos
 
 
 def sample_gauss_2d(C, N):

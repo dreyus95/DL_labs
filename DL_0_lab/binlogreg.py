@@ -2,8 +2,8 @@ import numpy as np
 
 import data
 
-PARAM_NITER = 10000
-PARAM_DELTA = 0.15
+PARAM_NITER = 100000
+PARAM_DELTA = 0.1
 SEED = 1510
 
 
@@ -25,7 +25,7 @@ def binlogreg_train(X, Y_):
     N = X.shape[0]
 
     w = np.random.randn(X.shape[1], 1)  # D x 1
-    b = np.zeros(shape=[N, 1])  # N x 1
+    b = np.random.randn(N, 1)  # N x 1
 
     for i in range(PARAM_NITER+1):
         # klasifikacijski rezultati
