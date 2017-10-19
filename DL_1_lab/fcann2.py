@@ -13,27 +13,13 @@ REG_LAMBDA = 1e-3
 
 
 def relu(input):
-    output = input * (input > 0)
-    return np.array(output)
+    output = np.maximum(0, input)
+    return output
 
 
 def softmax(z, sum):
     res = np.divide(z, sum)
     return res
-
-
-def cross_entropy_softmax_loss_array(softmax_probs_array, y_onehot):
-    """
-        Calculates cross entropy loss for computed softmax probability score array
-    :param softmax_probs_array: computed softmax probability score array
-    :param y_onehot: One_hoted indices of true classes
-    :return: loss
-    """
-    indices = np.argmax(y_onehot, axis=1).astype(int)
-    predicted_probability = softmax_probs_array[np.arange(len(softmax_probs_array)), indices]
-    log_preds = np.log(predicted_probability)
-    loss = -1.0 * np.sum(log_preds) / len(log_preds)
-    return loss
 
 
 def fcann2_train(X, Y_, param_niter=1e5, param_delta=0.07):
@@ -62,26 +48,26 @@ def fcann2_train(X, Y_, param_niter=1e5, param_delta=0.07):
     for i in range(int(param_niter)+1):
 
         ###### HIDDEN LAYER PASS ######
-        input = np.dot(X, W1) + b1
-        hidden = relu(input)
-        output = np.dot(hidden, W2) + b2
+        S1 = np.dot(X, W1) + b1
+        H1 = relu(S1)
+        S2 = np.dot(H1, W2) + b2
 
         ##### SOFTMAX PART #####
-        exp_scores = np.exp(output)
+        exp_scores = np.exp(S2)
         sumexp = np.sum(exp_scores, axis=1, keepdims=True)
         probs = softmax(exp_scores, sumexp)
 
         ##### UPDATES WEIGHTS #####
-        output_error_signal = (probs - Y_) / N
+        dS2 = (probs - Y_) / N
 
-        error_signal_hidden = np.dot(output_error_signal, W2.T)
-        error_signal_hidden[hidden <= 0] = 0  # reLU iz max(0, x), derivative is 0 if values are < 0
+        dS1 = np.dot(dS2, W2.T)
+        dS1[H1 <= 0] = 0  # reLU iz max(0, x), derivative is 0 if values are < 0
 
-        dW2 = np.dot(hidden.T, output_error_signal)
-        db2 = np.sum(output_error_signal, axis=0, keepdims=True)
+        dW2 = np.dot(H1.T, dS2)
+        db2 = np.sum(dS2, axis=0, keepdims=True)
 
-        dW1 = np.dot(X.T, error_signal_hidden)
-        db1 = np.sum(error_signal_hidden, axis=0, keepdims=True)
+        dW1 = np.dot(X.T, dS1)
+        db1 = np.sum(dS1, axis=0, keepdims=True)
 
         # Add regularization terms (b1 and b2 don't have regularization terms)
         dW2 += REG_LAMBDA * W2
@@ -93,7 +79,9 @@ def fcann2_train(X, Y_, param_niter=1e5, param_delta=0.07):
         W2 += -param_delta * dW2
         b2 += -param_delta * db2
 
-        loss = cross_entropy_softmax_loss_array(probs, Y_)
+        correct_class_prob = probs[range(len(X)), np.argmax(Y_, axis=1)]
+        correct_class_logprobs = -np.log(correct_class_prob)  # N x 1
+        loss = correct_class_logprobs.sum()
 
         if prev_loss > loss:
             # Assign new parameters to the model
