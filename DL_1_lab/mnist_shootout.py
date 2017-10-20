@@ -1,5 +1,6 @@
 import tensorflow as tf
 import numpy as np
+import os
 from sklearn.metrics import f1_score, precision_score, recall_score, accuracy_score
 from tensorflow.examples.tutorials.mnist import input_data
 mnist = input_data.read_data_sets("MNIST_data/", one_hot=True)
@@ -59,6 +60,7 @@ class TFDeep:
             self.train_step = tf.train.AdamOptimizer(rate).minimize(self.loss, global_step=step)
 
         self.session = tf.InteractiveSession()
+        self.saver = tf.train.Saver()
 
     def batch_norm(self, inputs, is_training, decay=0.999, epsilon=1e-3):
 
@@ -107,7 +109,8 @@ class TFDeep:
         split = int(ratio * len(X))
         return X[:split], X[split:], Yoh_[:split], Yoh_[split:]
 
-    def train_mb(self, X, Yoh_, n_epochs=1000, batch_size=50, train_ratio=1., print_step=10):
+    def train_mb(self, X, Yoh_, n_epochs=1000, batch_size=50, train_ratio=1., print_step=10,
+                 model_name=""):
         self.session.run(tf.initialize_all_variables())
         prev_loss = window_loss = float('inf')
 
@@ -135,6 +138,7 @@ class TFDeep:
             if epoch % 50 == 0:
                 if window_loss > prev_loss:
                     print("Early stopping: epoch", epoch)
+                    self.save(epoch, "model_" + str(model_name))
                     # break
                 prev_loss = window_loss
                 window_loss = float('inf')
@@ -150,7 +154,7 @@ class TFDeep:
            - X: actual datapoints [NxD]
            Returns: predicted class probabilites [NxC]
         """
-        probs = self.session.run(self.probs, feed_dict={self.X: X})
+        probs = self.session.run(self.probs, feed_dict={self.X: X, self.is_training: False})
         return probs
 
     def classify(self, X):
@@ -174,6 +178,18 @@ class TFDeep:
               "Recall: {2:.3f}\n"
               "F1: {3:.3f} ".format(accuracy, precision, recall, f1))
 
+    def save(self, epoch, path_dir):
+        if not os.path.exists(path_dir):
+            os.makedirs(path_dir)
+        epochs = self.saver.save(self.session, path_dir + '/model', global_step=epoch)
+        latest = self.saver.save(self.session, path_dir + '/model')
+        print("Path for epochs restore: %s" % epochs)
+        print("Path for latest restore: %s" % latest)
+
+    def restore(self, path):
+        self.saver.restore(self.session, path)
+        print("Model restored.")
+
 
 if __name__ == "__main__":
     train_images = []
@@ -195,7 +211,9 @@ if __name__ == "__main__":
 
     shape2 = [784, 10]
 
-    tfdeep2 = TFDeep(shape2, param_delta=0.015, param_lambda=0.01, optimizer="gds")
-    tfdeep2.train_mb(np.array(train_images), np.array(train_images_labels), train_ratio=0.8)
+    tfdeep2 = TFDeep(shape2, param_delta=0.015, param_lambda=0.01, optimizer="adam")
+    # tfdeep2.train_mb(np.array(train_images), np.array(train_images_labels), train_ratio=0.8,
+    #                  n_epochs=200, model_name="tryout")
+    tfdeep2.restore("model_tryout/model-100")
     probs2 = tfdeep2.eval(np.array(test_images))
     tfdeep2.eval_perf(np.argmax(probs2, axis=1), np.argmax(test_images_labels, axis=1))
