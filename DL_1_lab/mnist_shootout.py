@@ -181,9 +181,7 @@ class TFDeep:
     def save(self, epoch, path_dir):
         if not os.path.exists(path_dir):
             os.makedirs(path_dir)
-        epochs = self.saver.save(self.session, path_dir + '/model', global_step=epoch)
         latest = self.saver.save(self.session, path_dir + '/model')
-        print("Path for epochs restore: %s" % epochs)
         print("Path for latest restore: %s" % latest)
 
     def restore(self, path):
