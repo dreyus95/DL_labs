@@ -33,13 +33,13 @@ sess.run(tf.initialize_all_variables())
 for i in range(100):
     # if we put in X and Y_ 3 coords, it breaks, returning Nans and Infs
     # works for [0, 1, 2] / [1, 3, 5]  but not for [ 1, 2, 3] / [3, 5, 7]
-    # val_loss, val_a, val_b, var_grad, apply = sess.run([loss, a, b, grads, apply_placeholder_op],
-    #                                                       feed_dict={X: [0, 1, 2], Y_: [1, 3, 5]})
-    # print(i, val_loss, val_a, val_b, "\t", var_grad[0])
+    val_loss, val_a, val_b, var_grad, apply = sess.run([loss, a, b, grads, apply_placeholder_op],
+                                                          feed_dict={X: [1, 2], Y_: [3, 5]})
+    print(i, val_loss, val_a, val_b, "\t", var_grad[0])
 
-    val_loss, val_a, val_b, _, grads = sess.run([loss, a, b, train_op, tf_grads],
-                                                feed_dict={X: [1, 2], Y_: [3, 5]})
-    print(i, val_loss, val_a, val_b, "\t", grads)
+    # val_loss, val_a, val_b, _, grads = sess.run([loss, a, b, train_op, tf_grads],
+    #                                             feed_dict={X: [1, 2], Y_: [3, 5]})
+    # print(i, val_loss, val_a, val_b, "\t", grads)
 
     # TODO: figure out tf.Print
     # val_loss, val_a, val_b, _, grads = sess.run([loss, a, b, apply_placeholder_op, printout],
